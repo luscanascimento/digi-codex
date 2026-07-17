@@ -1,0 +1,179 @@
+:host {
+  display: block;
+  animation: card-in 0.5s var(--ease) backwards;
+  animation-delay: calc(var(--i, 0) * 35ms);
+}
+
+.card {
+  position: relative;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--border);
+  background: linear-gradient(160deg, var(--surface), color-mix(in srgb, var(--bg-2) 60%, transparent));
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  overflow: hidden;
+  transition:
+    transform var(--dur) var(--ease),
+    border-color var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease);
+}
+
+/* Holographic sheen border on hover */
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(140deg, var(--accent), transparent 40%, transparent 60%, var(--accent-2));
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity var(--dur) var(--ease);
+  pointer-events: none;
+}
+
+.card:hover,
+.card:focus-within {
+  transform: translateY(-6px);
+  border-color: var(--border-hi);
+  box-shadow: 0 18px 40px -18px var(--accent-glow), var(--shadow-1);
+}
+.card:hover::before,
+.card:focus-within::before {
+  opacity: 0.9;
+}
+
+.card__link {
+  display: block;
+  padding: var(--sp-3) var(--sp-3) 0;
+}
+
+.card__frame {
+  position: relative;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-md);
+  background:
+    radial-gradient(circle at 50% 38%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 62%),
+    var(--bg-1);
+  overflow: hidden;
+}
+
+.card__img {
+  width: 78%;
+  height: 78%;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 16px rgba(0, 0, 0, 0.5));
+  opacity: 0;
+  transform: scale(0.9);
+  transition: opacity 0.45s var(--ease), transform 0.45s var(--ease);
+}
+.card__img.is-loaded {
+  opacity: 1;
+  transform: scale(1);
+}
+.card:hover .card__img.is-loaded {
+  transform: scale(1.05);
+}
+
+.card__shimmer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 30%,
+    color-mix(in srgb, var(--accent) 12%, transparent) 50%,
+    transparent 70%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.3s infinite;
+}
+
+.card__id {
+  position: absolute;
+  top: var(--sp-2);
+  left: var(--sp-2);
+  font-size: var(--fs-xs);
+  color: var(--accent);
+  background: color-mix(in srgb, var(--bg-0) 62%, transparent);
+  border: 1px solid var(--border-hi);
+  padding: 0.1rem 0.45rem;
+  border-radius: var(--r-pill);
+  letter-spacing: 0.05em;
+}
+
+.card__name {
+  font-size: var(--fs-md);
+  padding: var(--sp-3) var(--sp-1) var(--sp-2);
+  color: var(--text-0);
+  line-height: 1.25;
+}
+
+.card__actions {
+  margin-top: auto;
+  display: flex;
+  gap: var(--sp-2);
+  padding: 0 var(--sp-3) var(--sp-3);
+}
+
+.chip {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg-2) 70%, transparent);
+  color: var(--text-2);
+  transition:
+    color var(--dur) var(--ease),
+    border-color var(--dur) var(--ease),
+    background var(--dur) var(--ease),
+    transform var(--dur) var(--ease);
+}
+.chip:hover {
+  transform: translateY(-2px);
+  color: var(--text-0);
+  border-color: var(--border-hi);
+}
+.chip.is-active {
+  color: var(--c-magenta);
+  border-color: color-mix(in srgb, var(--c-magenta) 55%, transparent);
+  background: color-mix(in srgb, var(--c-magenta) 16%, transparent);
+}
+.chip--compare.is-active {
+  color: var(--accent);
+  border-color: var(--border-hi);
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+}
+
+/* Larger tap targets + tap feedback on touch devices. */
+@media (hover: none) {
+  .chip {
+    width: 44px;
+    height: 44px;
+  }
+  .chip:active {
+    transform: scale(0.92);
+  }
+}
+
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+@keyframes card-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+}

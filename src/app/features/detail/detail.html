@@ -1,0 +1,165 @@
+<div class="container">
+  <a routerLink="/" class="back">
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <path d="M14 6l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round" />
+    </svg>
+    Back to index
+  </a>
+
+  @switch (state().status) {
+    @case ('loading') {
+      <div class="detail" aria-busy="true">
+        <div class="poster poster--sk"></div>
+        <div class="info">
+          <div class="sk-line sk-line--title"></div>
+          <div class="sk-line sk-line--pill"></div>
+          <div class="sk-line"></div>
+          <div class="sk-line"></div>
+          <div class="sk-line sk-line--short"></div>
+        </div>
+      </div>
+    }
+    @case ('error') {
+      <app-status-panel
+        kind="error"
+        title="Entry unavailable"
+        message="This Digimon couldn't be retrieved. It may not exist or the network dropped."
+        (retry)="retry()"
+      />
+    }
+    @case ('success') {
+      @if (digimon(); as d) {
+        <article class="detail">
+          <!-- Poster -->
+          <aside class="poster glass">
+            <div class="poster__frame">
+              @if (!imgLoaded()) {
+                <div class="poster__shimmer" aria-hidden="true"></div>
+              }
+              <img
+                class="poster__img"
+                [class.is-loaded]="imgLoaded()"
+                [src]="primaryImage()"
+                [alt]="d.name"
+                (load)="imgLoaded.set(true)"
+              />
+            </div>
+            <div class="poster__actions">
+              <button
+                type="button"
+                class="btn"
+                [class.btn--active-fav]="isFav()"
+                [attr.aria-pressed]="isFav()"
+                (click)="toggleFavorite()"
+              >
+                <svg viewBox="0 0 24 24" width="17" height="17" [attr.fill]="isFav() ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.7">
+                  <path d="M12 20s-7-4.35-7-9.5A3.5 3.5 0 0 1 12 8a3.5 3.5 0 0 1 7 2.5C19 15.65 12 20 12 20Z" stroke-linejoin="round" />
+                </svg>
+                {{ isFav() ? 'Favorited' : 'Favorite' }}
+              </button>
+              <button
+                type="button"
+                class="btn"
+                [class.btn--active]="inCompare()"
+                [attr.aria-pressed]="inCompare()"
+                (click)="toggleCompare()"
+              >
+                <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7">
+                  <path d="M8 4v16M16 4v16" stroke-linecap="round" />
+                </svg>
+                {{ inCompare() ? 'In compare' : 'Compare' }}
+              </button>
+            </div>
+          </aside>
+
+          <!-- Info -->
+          <div class="info">
+            <span class="info__id mono">#{{ d.id.toString().padStart(3, '0') }}</span>
+            <h1 class="info__name">{{ d.name }}</h1>
+
+            <div class="tags">
+              @for (l of d.levels; track l.id) {
+                <span class="tag tag--level">{{ l.level }}</span>
+              }
+              @for (a of d.attributes; track a.id) {
+                <span class="tag tag--attr">{{ a.attribute }}</span>
+              }
+              @for (t of d.types; track t.id) {
+                <span class="tag">{{ t.type }}</span>
+              }
+              @if (d.xAntibody) {
+                <span class="tag tag--x">X-Antibody</span>
+              }
+            </div>
+
+            @if (englishDescription()) {
+              <p class="info__desc">{{ englishDescription() }}</p>
+            } @else {
+              <p class="info__desc info__desc--muted">No description on record for this Digimon.</p>
+            }
+
+            <dl class="meta">
+              @if (d.releaseDate) {
+                <div class="meta__row">
+                  <dt>First appearance</dt>
+                  <dd>{{ d.releaseDate }}</dd>
+                </div>
+              }
+              @if (d.fields.length) {
+                <div class="meta__row">
+                  <dt>Fields</dt>
+                  <dd class="meta__fields">
+                    @for (f of d.fields; track f.id) {
+                      <span class="field-chip">
+                        <img [src]="f.image" [alt]="''" aria-hidden="true" />
+                        {{ f.field }}
+                      </span>
+                    }
+                  </dd>
+                </div>
+              }
+            </dl>
+          </div>
+        </article>
+
+        <!-- Digivolution Tree (differential) -->
+        <section class="section" aria-labelledby="tree-h">
+          <div class="section__head">
+            <h2 id="tree-h" class="section__title">
+              <span class="section__glow">Digivolution</span> Tree
+            </h2>
+            <p class="section__hint">Click any node to jump along the evolution line.</p>
+          </div>
+          <app-digivolution-tree [digimon]="d" />
+        </section>
+
+        <!-- Skills -->
+        @if (d.skills.length) {
+          <section class="section" aria-labelledby="skills-h">
+            <div class="section__head">
+              <h2 id="skills-h" class="section__title">
+                Signature <span class="section__glow">Skills</span>
+              </h2>
+              <p class="section__hint">{{ d.skills.length }} recorded techniques.</p>
+            </div>
+            <ul class="skills" role="list">
+              @for (s of d.skills; track s.id) {
+                <li class="skill glass">
+                  <div class="skill__head">
+                    <h3 class="skill__name">{{ s.skill }}</h3>
+                    @if (s.translation) {
+                      <span class="skill__tr mono">{{ s.translation }}</span>
+                    }
+                  </div>
+                  @if (s.description) {
+                    <p class="skill__desc">{{ s.description }}</p>
+                  }
+                </li>
+              }
+            </ul>
+          </section>
+        }
+      }
+    }
+  }
+</div>

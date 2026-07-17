@@ -1,0 +1,206 @@
+:host {
+  display: block;
+}
+
+.tree {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto 1fr;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-4);
+  border-radius: var(--r-lg);
+  background:
+    radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--accent) 8%, transparent), transparent 70%),
+    var(--bg-1);
+  border: 1px solid var(--border);
+  overflow-x: auto;
+}
+
+.tree__branch {
+  display: grid;
+  gap: var(--sp-3);
+  justify-items: center;
+  min-width: 0;
+}
+.tree__branch--current {
+  padding-inline: var(--sp-2);
+}
+
+.tree__col-label {
+  font-size: 0.6rem;
+  letter-spacing: 0.16em;
+  color: var(--text-2);
+  white-space: nowrap;
+}
+
+.tree__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--sp-3);
+  width: 100%;
+}
+.tree__item {
+  display: flex;
+  justify-content: center;
+}
+
+.tree__none {
+  color: var(--text-2);
+  font-size: var(--fs-sm);
+  font-style: italic;
+  text-align: center;
+  padding: var(--sp-3);
+}
+.tree__none--full {
+  border: 1px dashed var(--border);
+  border-radius: var(--r-md);
+}
+
+/* ---------- Connectors ---------- */
+.tree__spine {
+  display: grid;
+  align-items: center;
+  justify-items: center;
+  min-width: 46px;
+  position: relative;
+}
+.tree__connector {
+  width: 46px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent));
+  position: relative;
+}
+.tree__connector--out {
+  background: linear-gradient(90deg, var(--accent), transparent);
+}
+.tree__connector.is-dead {
+  background: color-mix(in srgb, var(--text-2) 40%, transparent);
+  opacity: 0.4;
+}
+.tree__pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 12px var(--accent);
+  margin-block: 4px;
+  animation: node-pulse 2s ease-in-out infinite;
+}
+
+/* ---------- Node ---------- */
+.node {
+  display: grid;
+  justify-items: center;
+  gap: 0.4rem;
+  width: 118px;
+  padding: var(--sp-3);
+  border-radius: var(--r-md);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-0);
+  text-align: center;
+  transition:
+    transform var(--dur) var(--ease),
+    border-color var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease);
+}
+a.node:hover,
+a.node:focus-visible {
+  transform: translateY(-4px);
+  border-color: var(--border-hi);
+  box-shadow: 0 14px 30px -14px var(--accent-glow);
+}
+
+.node__frame {
+  width: 74px;
+  height: 74px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-sm);
+  background: radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 65%), var(--bg-2);
+}
+.node__frame img {
+  width: 84%;
+  height: 84%;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 8px rgba(0, 0, 0, 0.5));
+}
+.node__name {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  line-height: 1.2;
+}
+.node__cond {
+  font-size: 0.62rem;
+  color: var(--text-2);
+  line-height: 1.25;
+}
+.node__tag {
+  font-size: 0.55rem;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+}
+
+.node--current {
+  width: 138px;
+  border-color: var(--border-hi);
+  background: linear-gradient(160deg, color-mix(in srgb, var(--accent) 14%, transparent), var(--surface));
+  box-shadow: 0 0 30px -8px var(--accent-glow);
+  position: relative;
+}
+.node--current .node__frame {
+  width: 92px;
+  height: 92px;
+}
+
+.tree__more {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--sp-4);
+}
+.tree__more-btn {
+  padding: 0.5rem 1.2rem;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-1);
+  font-size: var(--fs-sm);
+  transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+.tree__more-btn:hover {
+  color: var(--accent);
+  border-color: var(--border-hi);
+}
+
+@keyframes node-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.5);
+    opacity: 0.5;
+  }
+}
+
+/* Stacked layout on narrow screens */
+@media (max-width: 860px) {
+  .tree {
+    grid-template-columns: 1fr;
+    gap: var(--sp-5);
+  }
+  .tree__spine {
+    min-width: 0;
+    transform: rotate(90deg);
+    height: 40px;
+  }
+  .tree__spine--right {
+    display: none;
+  }
+  .tree__connector {
+    width: 30px;
+  }
+}

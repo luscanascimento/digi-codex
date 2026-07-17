@@ -1,0 +1,300 @@
+/* ============================================================
+   DIGI CODEX — Global Design System
+   Holographic / digital aesthetic: deep space canvas,
+   glassmorphism panels, neon cyan + violet accents.
+   ============================================================ */
+
+/* ---------- Design Tokens ---------- */
+:root {
+  /* Color primitives */
+  --c-cyan: #22e1ff;
+  --c-cyan-deep: #0fb6d6;
+  --c-violet: #7c5cff;
+  --c-magenta: #ff5cc8;
+  --c-amber: #ffcf5c;
+  --c-lime: #7dff8f;
+
+  /* Accent ramp */
+  --accent: var(--c-cyan);
+  --accent-2: var(--c-violet);
+  --accent-glow: color-mix(in srgb, var(--accent) 55%, transparent);
+
+  /* Dark theme (default) */
+  --bg-0: #05070f;
+  --bg-1: #080c1a;
+  --bg-2: #0c1226;
+  --surface: rgba(18, 26, 51, 0.55);
+  --surface-solid: #0d1428;
+  --surface-hi: rgba(34, 47, 88, 0.6);
+  --border: rgba(120, 160, 255, 0.16);
+  --border-hi: rgba(120, 200, 255, 0.4);
+  --text-0: #eaf2ff;
+  --text-1: #aeb9d6;
+  --text-2: #6f7ba0;
+  --danger: #ff6b7a;
+  --success: #62e8a4;
+
+  /* Typography */
+  --font-display: 'Chakra Petch', system-ui, sans-serif;
+  --font-body: 'Space Grotesk', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* Type scale */
+  --fs-xs: 0.75rem;
+  --fs-sm: 0.875rem;
+  --fs-md: 1rem;
+  --fs-lg: 1.25rem;
+  --fs-xl: 1.625rem;
+  --fs-2xl: 2.25rem;
+  --fs-3xl: clamp(2.5rem, 6vw, 4rem);
+
+  /* Spacing rhythm (4px base) */
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-5: 1.5rem;
+  --sp-6: 2rem;
+  --sp-7: 3rem;
+  --sp-8: 4rem;
+
+  /* Radii */
+  --r-sm: 8px;
+  --r-md: 14px;
+  --r-lg: 22px;
+  --r-pill: 999px;
+
+  /* Shadows / glow */
+  --shadow-1: 0 8px 30px rgba(0, 0, 0, 0.45);
+  --shadow-glow: 0 0 0 1px var(--border-hi), 0 0 30px var(--accent-glow);
+
+  --ring: 0 0 0 2px var(--bg-0), 0 0 0 4px var(--accent);
+  --dur: 0.28s;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Light theme */
+:root[data-theme='light'] {
+  --bg-0: #eef2fb;
+  --bg-1: #e6ecf8;
+  --bg-2: #dde5f5;
+  --surface: rgba(255, 255, 255, 0.72);
+  --surface-solid: #ffffff;
+  --surface-hi: rgba(255, 255, 255, 0.9);
+  --border: rgba(40, 70, 140, 0.16);
+  --border-hi: rgba(30, 120, 190, 0.4);
+  --text-0: #0c1330;
+  --text-1: #38466e;
+  --text-2: #6a789e;
+  --accent: #0b8fb8;
+  --accent-2: #6a48ff;
+  --shadow-1: 0 10px 30px rgba(30, 50, 110, 0.14);
+}
+
+/* ---------- Reset ---------- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg-0);
+  color: var(--text-0);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  /* Guard against any horizontal overflow on narrow (320px+) viewports. */
+  overflow-x: hidden;
+  /* Momentum / inertial scrolling on iOS. */
+  -webkit-overflow-scrolling: touch;
+  /* Prevent the whole page from shifting sideways on touch. */
+  overscroll-behavior-y: none;
+}
+
+/* ---------- Mobile / touch ergonomics ---------- */
+/* Kill the grey tap flash and the 300ms double-tap-to-zoom delay on controls. */
+a,
+button,
+input,
+select,
+textarea,
+label,
+[role='button'] {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* Interactive tap feedback for touch devices (no hover). */
+@media (hover: none) {
+  a:active,
+  button:not(:disabled):active,
+  [role='button']:active {
+    transform: scale(0.97);
+  }
+}
+
+/* 16px+ font on form fields stops iOS Safari from auto-zooming on focus. */
+@media (max-width: 720px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
+/* Atmospheric background */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background:
+    radial-gradient(60vw 60vw at 82% -10%, color-mix(in srgb, var(--accent-2) 22%, transparent), transparent 60%),
+    radial-gradient(50vw 50vw at 8% 5%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 55%),
+    radial-gradient(70vw 40vw at 50% 115%, color-mix(in srgb, var(--c-magenta) 12%, transparent), transparent 60%),
+    var(--bg-0);
+}
+
+/* Grid mesh overlay */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--accent) 6%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--accent) 6%, transparent) 1px, transparent 1px);
+  background-size: 46px 46px;
+  mask-image: radial-gradient(circle at 50% 30%, #000 0%, transparent 78%);
+  opacity: 0.7;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: 1.1;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* ---------- Focus visibility ---------- */
+:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
+  border-radius: var(--r-sm);
+}
+
+/* ---------- Utilities ---------- */
+.container {
+  width: min(1220px, 100% - 2.5rem);
+  margin-inline: auto;
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Glass panel base */
+.glass {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  box-shadow: var(--shadow-1);
+}
+
+/* Scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--accent) 40%, transparent) transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--accent) 40%, transparent);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+/* Boot splash (shown before Angular hydrates) */
+.boot-splash {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 1.25rem;
+  background: var(--bg-0);
+  z-index: 50;
+}
+.boot-splash__ring {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 3px solid color-mix(in srgb, var(--accent) 25%, transparent);
+  border-top-color: var(--accent);
+  animation: spin 0.9s linear infinite;
+}
+.boot-splash__text {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.28em;
+  color: var(--text-2);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

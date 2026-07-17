@@ -1,0 +1,103 @@
+@if (hasTree()) {
+  <div class="tree">
+    <!-- Prior evolutions column -->
+    <div class="tree__branch tree__branch--prior">
+      <span class="tree__col-label mono">DIGIVOLVES FROM</span>
+      @if (prior().length === 0) {
+        <p class="tree__none">Origin form</p>
+      } @else {
+        <ul class="tree__list" role="list">
+          @for (node of priorShown(); track node.id ?? node.name) {
+            <li class="tree__item">
+              <ng-container
+                [ngTemplateOutlet]="nodeTpl"
+                [ngTemplateOutletContext]="{ $implicit: node, variant: 'prior' }"
+              />
+            </li>
+          }
+        </ul>
+      }
+    </div>
+
+    <!-- Connectors + current -->
+    <div class="tree__spine" aria-hidden="true">
+      <span class="tree__connector tree__connector--in" [class.is-dead]="prior().length === 0"></span>
+      <span class="tree__pulse"></span>
+      <span class="tree__connector tree__connector--out" [class.is-dead]="next().length === 0"></span>
+    </div>
+
+    <div class="tree__branch tree__branch--current">
+      <span class="tree__col-label mono">CURRENT</span>
+      <div class="tree__item">
+        <div class="node node--current" aria-current="true">
+          <div class="node__frame">
+            <img [src]="current().image" [alt]="current().name" loading="lazy" />
+          </div>
+          <span class="node__name">{{ current().name }}</span>
+          <span class="node__tag mono">YOU ARE HERE</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="tree__spine tree__spine--right" aria-hidden="true">
+      <span class="tree__connector tree__connector--in" [class.is-dead]="next().length === 0"></span>
+    </div>
+
+    <!-- Next evolutions column -->
+    <div class="tree__branch tree__branch--next">
+      <span class="tree__col-label mono">DIGIVOLVES TO</span>
+      @if (next().length === 0) {
+        <p class="tree__none">Final form</p>
+      } @else {
+        <ul class="tree__list" role="list">
+          @for (node of nextShown(); track node.id ?? node.name) {
+            <li class="tree__item">
+              <ng-container
+                [ngTemplateOutlet]="nodeTpl"
+                [ngTemplateOutletContext]="{ $implicit: node, variant: 'next' }"
+              />
+            </li>
+          }
+        </ul>
+      }
+    </div>
+  </div>
+
+  @if (hiddenCount() > 0 || expanded()) {
+    <div class="tree__more">
+      <button type="button" class="tree__more-btn" (click)="toggleExpand()">
+        @if (expanded()) {
+          Show fewer branches
+        } @else {
+          Show {{ hiddenCount() }} more branch(es)
+        }
+      </button>
+    </div>
+  }
+} @else {
+  <p class="tree__none tree__none--full">
+    No recorded digivolutions for this Digimon.
+  </p>
+}
+
+<!-- Reusable evolution node template -->
+<ng-template #nodeTpl let-node let-variant="variant">
+  @if (node.id !== null) {
+    <a class="node" [class.node--next]="variant === 'next'" [routerLink]="['/digimon', node.id]">
+      <div class="node__frame">
+        <img [src]="node.image" [alt]="node.name" loading="lazy" />
+      </div>
+      <span class="node__name">{{ node.name }}</span>
+      @if (node.condition) {
+        <span class="node__cond">{{ node.condition }}</span>
+      }
+    </a>
+  } @else {
+    <div class="node node--static">
+      <div class="node__frame">
+        <img [src]="node.image" [alt]="node.name" loading="lazy" />
+      </div>
+      <span class="node__name">{{ node.name }}</span>
+    </div>
+  }
+</ng-template>

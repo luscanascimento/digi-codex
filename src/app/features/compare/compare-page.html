@@ -1,0 +1,123 @@
+<div class="container">
+  <header class="head">
+    <h1 class="head__title"><span class="head__glow">Compare</span> Digimon</h1>
+    <p class="head__sub">Line up two Digimon side by side and inspect their stats at a glance.</p>
+  </header>
+
+  <div class="arena">
+    <!-- Slot A -->
+    <div class="slot glass" [class.is-empty]="a().status === 'idle'">
+      @switch (a().status) {
+        @case ('success') {
+          <ng-container [ngTemplateOutlet]="filledTpl" [ngTemplateOutletContext]="{ state: a(), slot: 0 }" />
+        }
+        @case ('loading') { <div class="slot__loading"><span class="ring"></span></div> }
+        @case ('error') { <div class="slot__err">Failed to load. <button type="button" (click)="clearSlot(0)">Clear</button></div> }
+        @default {
+          <button type="button" class="slot__add" (click)="openPicker(0)">
+            <span class="slot__plus">+</span>
+            Select Digimon A
+          </button>
+        }
+      }
+    </div>
+
+    <div class="vs mono" aria-hidden="true">VS</div>
+
+    <!-- Slot B -->
+    <div class="slot glass" [class.is-empty]="b().status === 'idle'">
+      @switch (b().status) {
+        @case ('success') {
+          <ng-container [ngTemplateOutlet]="filledTpl" [ngTemplateOutletContext]="{ state: b(), slot: 1 }" />
+        }
+        @case ('loading') { <div class="slot__loading"><span class="ring"></span></div> }
+        @case ('error') { <div class="slot__err">Failed to load. <button type="button" (click)="clearSlot(1)">Clear</button></div> }
+        @default {
+          <button type="button" class="slot__add" (click)="openPicker(1)">
+            <span class="slot__plus">+</span>
+            Select Digimon B
+          </button>
+        }
+      }
+    </div>
+  </div>
+
+  <!-- Comparison table -->
+  @if (bothReady()) {
+    <section class="compare-table glass" aria-label="Stat comparison">
+      <table>
+        <caption class="visually-hidden">Side-by-side comparison of the two selected Digimon</caption>
+        <thead>
+          <tr>
+            <th scope="col">{{ a().data?.name }}</th>
+            <th scope="col" class="col-mid">Attribute</th>
+            <th scope="col">{{ b().data?.name }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (row of rows(); track row.label) {
+            <tr>
+              <td class="cell-a" [class.win]="row.a !== '—' && row.a !== row.b">{{ row.a }}</td>
+              <th scope="row" class="col-mid">{{ row.label }}</th>
+              <td class="cell-b" [class.win]="row.b !== '—' && row.a !== row.b">{{ row.b }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </section>
+  } @else {
+    <p class="hint mono">SELECT TWO DIGIMON TO GENERATE A COMPARISON</p>
+  }
+</div>
+
+<!-- Slot picker overlay -->
+@if (pickTarget() !== null) {
+  <div class="picker" role="dialog" aria-modal="true" aria-label="Select a Digimon">
+    <div class="picker__backdrop" (click)="closePicker()"></div>
+    <div class="picker__panel glass">
+      <div class="picker__head">
+        <h2>Select Digimon {{ pickTarget() === 0 ? 'A' : 'B' }}</h2>
+        <button type="button" class="picker__close" (click)="closePicker()" aria-label="Close">×</button>
+      </div>
+      <input
+        type="search"
+        class="picker__input"
+        placeholder="Type a name…"
+        [formControl]="searchCtrl"
+        aria-label="Search Digimon by name"
+        autofocus
+      />
+      <div class="picker__results">
+        @if (searching()) {
+          <p class="picker__status">Searching…</p>
+        } @else if (searchResults().length === 0) {
+          <p class="picker__status">Type at least 2 letters to search.</p>
+        } @else {
+          <ul role="list">
+            @for (r of searchResults(); track r.id) {
+              <li>
+                <button type="button" class="picker__opt" (click)="choose(r)">
+                  <img [src]="r.image" [alt]="''" aria-hidden="true" />
+                  <span>{{ r.name }}</span>
+                  <span class="mono picker__optid">#{{ r.id }}</span>
+                </button>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    </div>
+  </div>
+}
+
+<ng-template #filledTpl let-state="state" let-slot="slot">
+  <div class="filled">
+    <button type="button" class="filled__remove" (click)="clearSlot(slot)" aria-label="Remove from comparison">×</button>
+    <a [routerLink]="['/digimon', state.data.id]" class="filled__frame">
+      <img [src]="imageOf(state)" [alt]="state.data.name" />
+    </a>
+    <h3 class="filled__name">{{ state.data.name }}</h3>
+    <span class="filled__id mono">#{{ state.data.id.toString().padStart(3, '0') }}</span>
+    <button type="button" class="filled__swap" (click)="openPicker(slot)">Swap</button>
+  </div>
+</ng-template>

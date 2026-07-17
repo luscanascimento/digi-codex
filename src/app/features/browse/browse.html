@@ -1,0 +1,181 @@
+<section class="hero container">
+  <div class="hero__badge mono">
+    <span class="hero__dot"></span> LIVE INDEX · {{ totalElements() | number }} ENTRIES
+  </div>
+  <h1 class="hero__title">
+    The <span class="hero__grad">Digimon</span> Codex
+  </h1>
+  <p class="hero__sub">
+    Browse the digital world's living archive. Search, filter, trace digivolution lines,
+    and compare partners side by side.
+  </p>
+</section>
+
+<section class="filters container glass" aria-label="Search and filters">
+  <div class="filters__search">
+    <svg class="filters__icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+      <circle cx="11" cy="11" r="7" />
+      <path d="m20 20-3.5-3.5" stroke-linecap="round" />
+    </svg>
+    <input
+      type="search"
+      class="filters__input"
+      placeholder="Search by name — e.g. Agumon"
+      autocomplete="off"
+      [formControl]="search"
+      aria-label="Search Digimon by name"
+    />
+  </div>
+
+  <!-- Mobile-only trigger that opens the filter bottom sheet. -->
+  <button
+    type="button"
+    class="filters__trigger"
+    (click)="openSheet()"
+    aria-haspopup="dialog"
+    [attr.aria-expanded]="sheetOpen()"
+    aria-controls="filter-sheet"
+  >
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+      <path d="M4 6h16M7 12h10M10 18h4" stroke-linecap="round" />
+    </svg>
+    <span>Filters</span>
+    @if (activeFilterCount() > 0) {
+      <span class="filters__trigger-badge">{{ activeFilterCount() }}</span>
+    }
+  </button>
+
+  <!-- Dimmed backdrop behind the sheet (mobile only). -->
+  @if (sheetOpen()) {
+    <div class="sheet-backdrop" (click)="closeSheet()" aria-hidden="true"></div>
+  }
+
+  <div
+    class="filters__group"
+    [class.is-open]="sheetOpen()"
+    id="filter-sheet"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Filters"
+  >
+    <div class="sheet__handle" aria-hidden="true"></div>
+    <div class="sheet__head">
+      <h2 class="sheet__title">Filters</h2>
+      <button type="button" class="sheet__close" (click)="closeSheet()" aria-label="Close filters">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+          <path d="M6 6l12 12M18 6L6 18" stroke-linecap="round" />
+        </svg>
+      </button>
+    </div>
+
+    <label class="field">
+      <span class="field__label">Level</span>
+      <select class="field__select" [formControl]="level" aria-label="Filter by level">
+        <option value="">All levels</option>
+        @for (l of levels(); track l.id) {
+          <option [value]="l.name">{{ l.name }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="field">
+      <span class="field__label">Attribute</span>
+      <select class="field__select" [formControl]="attribute" aria-label="Filter by attribute">
+        <option value="">All attributes</option>
+        @for (a of attributes(); track a.id) {
+          <option [value]="a.name">{{ a.name }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="toggle">
+      <input type="checkbox" [formControl]="xAntibody" class="toggle__input" />
+      <span class="toggle__track" aria-hidden="true"><span class="toggle__thumb"></span></span>
+      <span class="toggle__label">X-Antibody</span>
+    </label>
+
+    @if (hasActiveFilters()) {
+      <button type="button" class="filters__clear" (click)="clearFilters()">Clear</button>
+    }
+
+    <button type="button" class="sheet__apply" (click)="closeSheet()">Show results</button>
+  </div>
+</section>
+
+<div id="grid-top"></div>
+
+<section class="results container">
+  @switch (load().status) {
+    @case ('loading') {
+      <div class="grid" aria-busy="true" aria-label="Loading Digimon">
+        @for (s of skeletons; track s) {
+          <app-card-skeleton [index]="s" />
+        }
+      </div>
+    }
+    @case ('error') {
+      <app-status-panel
+        kind="error"
+        title="Connection lost"
+        message="We couldn't reach the digital world. Check your network and try again."
+        (retry)="retry()"
+      />
+    }
+    @case ('success') {
+      @if (isEmpty()) {
+        <app-status-panel
+          kind="empty"
+          title="No Digimon found"
+          message="No entries match your current filters. Try loosening the search."
+        />
+      } @else {
+        <div class="results__meta mono">
+          PAGE {{ currentPage() + 1 }} / {{ totalPages() }} · {{ totalElements() | number }} MATCHES
+        </div>
+        <div class="grid">
+          @for (d of items(); track d.id; let i = $index) {
+            <app-digimon-card [digimon]="d" [index]="i" />
+          }
+        </div>
+
+        @if (totalPages() > 1) {
+          <nav class="pager" aria-label="Pagination">
+            <button
+              type="button"
+              class="pager__btn"
+              [disabled]="currentPage() === 0"
+              (click)="goToPage(currentPage() - 1)"
+              aria-label="Previous page"
+            >
+              ‹
+            </button>
+            @for (p of pageWindow(); track $index) {
+              @if (p === '…') {
+                <span class="pager__gap" aria-hidden="true">…</span>
+              } @else {
+                <button
+                  type="button"
+                  class="pager__btn"
+                  [class.is-current]="p === currentPage()"
+                  [attr.aria-current]="p === currentPage() ? 'page' : null"
+                  (click)="goToPage(p)"
+                >
+                  {{ p + 1 }}
+                </button>
+              }
+            }
+            <button
+              type="button"
+              class="pager__btn"
+              [disabled]="currentPage() >= totalPages() - 1"
+              (click)="goToPage(currentPage() + 1)"
+              aria-label="Next page"
+            >
+              ›
+            </button>
+          </nav>
+        }
+      }
+    }
+  }
+</section>

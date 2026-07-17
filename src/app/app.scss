@@ -1,0 +1,265 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+.skip-link {
+  position: absolute;
+  left: 50%;
+  top: -60px;
+  transform: translateX(-50%);
+  z-index: 60;
+  padding: 0.6rem 1.2rem;
+  background: var(--surface-solid);
+  border: 1px solid var(--border-hi);
+  border-radius: var(--r-pill);
+  transition: top 0.2s var(--ease);
+}
+.skip-link:focus {
+  top: 12px;
+}
+
+/* ---------- Top bar ---------- */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: color-mix(in srgb, var(--bg-0) 78%, transparent);
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  border-bottom: 1px solid var(--border);
+  /* Honor notches / rounded corners on the leading & trailing edges. */
+  padding-top: env(safe-area-inset-top);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+.topbar__inner {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-5);
+  height: 68px;
+  transition: height var(--dur) var(--ease);
+}
+.topbar__scan {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  opacity: 0.55;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-3);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.35rem;
+  letter-spacing: -0.02em;
+}
+.brand__mark {
+  display: grid;
+  place-items: center;
+  filter: drop-shadow(0 0 10px var(--accent-glow));
+}
+.brand__accent {
+  color: var(--accent);
+}
+
+.nav {
+  display: flex;
+  gap: var(--sp-2);
+  margin-left: auto;
+}
+.nav a {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: 0.5rem 0.95rem;
+  border-radius: var(--r-pill);
+  color: var(--text-1);
+  font-weight: 500;
+  font-size: var(--fs-sm);
+  transition: color var(--dur) var(--ease), background var(--dur) var(--ease);
+}
+.nav a:hover {
+  color: var(--text-0);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+.nav a.is-active {
+  color: var(--text-0);
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  box-shadow: inset 0 0 0 1px var(--border-hi);
+}
+.nav__badge {
+  display: grid;
+  place-items: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  border-radius: var(--r-pill);
+  background: var(--accent);
+  color: var(--bg-0);
+  font-weight: 700;
+}
+
+.theme-toggle {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-0);
+  transition: transform var(--dur) var(--ease), border-color var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+.theme-toggle:hover {
+  transform: rotate(18deg);
+  color: var(--accent);
+  border-color: var(--border-hi);
+}
+
+.main {
+  flex: 1;
+  padding-block: var(--sp-6) var(--sp-8);
+  outline: none;
+}
+
+/* ---------- Footer ---------- */
+.footer {
+  border-top: 1px solid var(--border);
+  background: color-mix(in srgb, var(--bg-1) 60%, transparent);
+}
+.footer__inner {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  padding-block: var(--sp-5);
+}
+.footer__meta {
+  font-size: var(--fs-xs);
+  color: var(--text-2);
+  letter-spacing: 0.04em;
+  margin: 0;
+}
+.footer__meta a {
+  color: var(--accent);
+}
+
+/* ---------- Mobile bottom tab bar ---------- */
+.tabbar {
+  display: none;
+}
+
+@media (max-width: 720px) {
+  .tabbar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 45;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    align-items: stretch;
+    background: color-mix(in srgb, var(--bg-0) 88%, transparent);
+    backdrop-filter: blur(18px) saturate(150%);
+    -webkit-backdrop-filter: blur(18px) saturate(150%);
+    border-top: 1px solid var(--border);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    /* Lift content above the home indicator. */
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .tabbar__item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    min-height: 56px;
+    padding: 8px 4px 6px;
+    border: 0;
+    background: transparent;
+    color: var(--text-2);
+    font-family: var(--font-body);
+    font-size: 0.66rem;
+    letter-spacing: 0.02em;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    transition: color var(--dur) var(--ease);
+  }
+  .tabbar__item.is-active {
+    color: var(--accent);
+  }
+  .tabbar__item.is-active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    width: 26px;
+    height: 3px;
+    border-radius: 0 0 999px 999px;
+    background: var(--accent);
+    box-shadow: 0 0 10px var(--accent-glow);
+  }
+  .tabbar__item:active {
+    color: var(--text-0);
+    background: color-mix(in srgb, var(--accent) 10%, transparent);
+  }
+  .tabbar__iconwrap {
+    position: relative;
+    display: inline-flex;
+  }
+  .tabbar__badge {
+    position: absolute;
+    top: -6px;
+    right: -10px;
+    display: grid;
+    place-items: center;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    font-weight: 700;
+    line-height: 1;
+    border-radius: var(--r-pill);
+    background: var(--accent);
+    color: var(--bg-0);
+  }
+  .tabbar__label {
+    line-height: 1;
+  }
+
+  /* Desktop top-nav links + toggle collapse into the bottom bar on mobile. */
+  .nav,
+  .theme-toggle {
+    display: none;
+  }
+  .brand {
+    margin-right: auto;
+  }
+  /* Keep page content clear of the fixed bar. */
+  .main {
+    padding-bottom: calc(64px + env(safe-area-inset-bottom) + var(--sp-4));
+  }
+  .footer {
+    display: none;
+  }
+
+  .topbar__inner {
+    gap: var(--sp-3);
+  }
+}
+
+/* Condense the sticky header slightly on very short/scrolled viewports. */
+@media (max-width: 720px) {
+  .topbar__inner {
+    height: 60px;
+  }
+}
