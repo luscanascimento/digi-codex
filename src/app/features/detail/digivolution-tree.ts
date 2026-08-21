@@ -12,7 +12,7 @@ interface TreeNode {
 }
 
 /**
- * DIFFERENTIAL FEATURE — Digivolution Tree.
+ * Digivolution Tree.
  * Renders prior -> current -> next evolution forms as an interactive,
  * CSS-node graph with SVG connectors. Every node is a link that navigates
  * to that Digimon's detail page.
