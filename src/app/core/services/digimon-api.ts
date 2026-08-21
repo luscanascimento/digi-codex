@@ -20,11 +20,17 @@ export class DigimonApi {
   private levels$?: Observable<readonly RefField[]>;
   private attributes$?: Observable<readonly RefField[]>;
 
+  /**
+   * Detail cache so walking back and forth through the digivolution tree
+   * doesn't refetch the same Digimon.
+   * Unbounded on purpose: the whole dataset is ~1.4k small JSON docs and the
+   * cache dies with the tab. Add an LRU cap if that ever stops being true.
+   */
+  private readonly byId = new Map<number, Observable<Digimon>>();
+
   /** Paginated + filterable browse endpoint. */
   browse(query: BrowseQuery, pageSize = 24): Observable<DigimonListResponse> {
-    let params = new HttpParams()
-      .set('page', String(query.page))
-      .set('pageSize', String(pageSize));
+    let params = new HttpParams().set('page', String(query.page)).set('pageSize', String(pageSize));
 
     if (query.name.trim()) params = params.set('name', query.name.trim());
     if (query.attribute) params = params.set('attribute', query.attribute);
@@ -34,9 +40,14 @@ export class DigimonApi {
     return this.http.get<DigimonListResponse>(`${BASE}/digimon`, { params });
   }
 
-  /** Full detail for a single Digimon by numeric id. */
+  /** Full detail for a single Digimon by numeric id, cached for the session. */
   getById(id: number): Observable<Digimon> {
-    return this.http.get<Digimon>(`${BASE}/digimon/${id}`);
+    let cached = this.byId.get(id);
+    if (!cached) {
+      cached = this.http.get<Digimon>(`${BASE}/digimon/${id}`).pipe(shareReplay(1));
+      this.byId.set(id, cached);
+    }
+    return cached;
   }
 
   getLevels(): Observable<readonly RefField[]> {
