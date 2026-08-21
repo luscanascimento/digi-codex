@@ -12,6 +12,7 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { catchError, debounceTime, distinctUntilChanged, of, startWith } from 'rxjs';
 import { DigimonApi } from '../../core/services/digimon-api';
+import { PageWindowItem, pageWindow as buildPageWindow } from '../../core/pagination';
 import { BrowseQuery, DigimonListResponse } from '../../core/models/digimon.model';
 import { DigimonCard } from '../../shared/ui/digimon-card';
 import { CardSkeleton } from '../../shared/ui/card-skeleton';
@@ -86,19 +87,14 @@ export class Browse {
   readonly totalPages = computed(() => this._load().data?.pageable.totalPages ?? 0);
   readonly totalElements = computed(() => this._load().data?.pageable.totalElements ?? 0);
   readonly items = computed(() => this._load().data?.content ?? []);
-  readonly isEmpty = computed(
-    () => this._load().status === 'success' && this.items().length === 0,
-  );
+  readonly isEmpty = computed(() => this._load().status === 'success' && this.items().length === 0);
   readonly hasActiveFilters = computed(
     () => !!(this.searchValue() || this.levelValue() || this.attributeValue() || this.xValue()),
   );
 
   /** Count of the non-search filters — surfaced as a badge on the mobile trigger. */
   readonly activeFilterCount = computed(
-    () =>
-      (this.levelValue() ? 1 : 0) +
-      (this.attributeValue() ? 1 : 0) +
-      (this.xValue() ? 1 : 0),
+    () => (this.levelValue() ? 1 : 0) + (this.attributeValue() ? 1 : 0) + (this.xValue() ? 1 : 0),
   );
 
   private inFlight = 0;
@@ -118,18 +114,14 @@ export class Browse {
       const q = this.query();
       this.reloadTick();
       const ticket = ++this.inFlight;
-      untracked(() =>
-        this._load.set({ status: 'loading', data: this._load().data }),
-      );
+      untracked(() => this._load.set({ status: 'loading', data: this._load().data }));
       this.api
         .browse(q, PAGE_SIZE)
         .pipe(catchError(() => of<'ERR'>('ERR')))
         .subscribe((res) => {
           if (ticket !== this.inFlight) return; // drop stale responses
           this._load.set(
-            res === 'ERR'
-              ? { status: 'error', data: null }
-              : { status: 'success', data: res },
+            res === 'ERR' ? { status: 'error', data: null } : { status: 'success', data: res },
           );
         });
     });
@@ -165,19 +157,7 @@ export class Browse {
   }
 
   /** Compact pagination window: first, current-1..current+1, last with ellipses. */
-  readonly pageWindow = computed<(number | '…')[]>(() => {
-    const total = this.totalPages();
-    const current = this.page();
-    if (total <= 1) return total === 1 ? [0] : [];
-    const pages = new Set<number>([0, total - 1, current, current - 1, current + 1]);
-    const sorted = [...pages].filter((p) => p >= 0 && p < total).sort((a, b) => a - b);
-    const out: (number | '…')[] = [];
-    let prev = -1;
-    for (const p of sorted) {
-      if (prev !== -1 && p - prev > 1) out.push('…');
-      out.push(p);
-      prev = p;
-    }
-    return out;
-  });
+  readonly pageWindow = computed<PageWindowItem[]>(() =>
+    buildPageWindow(this.totalPages(), this.page()),
+  );
 }
