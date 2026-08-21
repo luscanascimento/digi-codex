@@ -23,7 +23,7 @@ grid mesh backdrop, and tasteful micro-interactions that stay readable in both l
 - **Compare mode** — pick any two Digimon (via an in-app search picker) and see them **side by side** in a stat table that highlights the differences. Selections persist across reloads.
 - **Favorites** — heart any Digimon to pin it; the collection is saved to **localStorage** and surfaced on a dedicated page with a live count badge.
 - **Light + dark themes** — auto-detected from your OS preference, toggleable, and remembered.
-- **Robust async UX** — every data path has explicit **loading skeletons, empty states, and error states with retry**.
+- **Robust async UX** — every content fetch (browse grid, detail, compare) has explicit **loading skeletons, empty states, and an error state with a retry button**. Secondary lookups (the level/attribute filter lists and the compare search picker) degrade quietly to an empty list instead of blocking the page.
 - **Accessible & responsive** — semantic HTML, ARIA where needed, keyboard navigation, visible focus rings, a skip link, and `prefers-reduced-motion` support.
 
 ---
@@ -50,6 +50,15 @@ npm start
 Then open <http://localhost:4200>. The app talks directly to `https://digi-api.com` — no environment
 configuration or API key is required.
 
+### Unit tests
+
+```bash
+npm test
+```
+
+Vitest + jsdom, run through the Angular CLI. The suite covers the pagination window helper, the
+browse view's stale-response guard, and the detail cache in `DigimonApi`.
+
 ### Production build
 
 ```bash
@@ -68,7 +77,8 @@ src/
 ├─ app/
 │  ├─ core/                     # app-wide singletons — no UI
 │  │  ├─ models/                # typed API/domain interfaces
-│  │  └─ services/              # DigimonApi, Theme, Favorites, Compare
+│  │  ├─ services/              # DigimonApi, Theme, Favorites, Compare
+│  │  └─ pagination.ts          # pure pagination-window helper
 │  ├─ shared/                   # reusable, presentational building blocks
 │  │  ├─ pipes/                 # evolution-id pipe
 │  │  └─ ui/                    # DigimonCard, CardSkeleton, StatusPanel
@@ -95,8 +105,9 @@ src/
 - **TypeScript strict mode with zero `any`** — fully typed API contracts and clean `core / shared / features` layering.
 - **A real design system** — CSS custom-property tokens for color, spacing, typography, and radii, driving a
   cohesive light/dark theme rather than ad-hoc styling.
-- **Production-grade async UX** — deliberate loading, empty, and error states with retry on every fetch, plus
-  stale-response guarding so fast filter changes never render out-of-order data.
+- **Production-grade async UX** — deliberate loading, empty, and error-with-retry states on every content
+  fetch, plus stale-response guarding so fast filter changes never render out-of-order data, and a
+  per-id detail cache so walking an evolution line doesn't refetch.
 - **Thoughtful details** — localStorage persistence, accessibility, responsive layouts, and interaction polish.
 
 ---
