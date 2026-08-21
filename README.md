@@ -19,22 +19,12 @@ grid mesh backdrop, and tasteful micro-interactions that stay readable in both l
 
 - **Browse & search** — debounced name search plus **live filters** for level, attribute, and X-Antibody variants, over a responsive, skeleton-loaded artwork grid with compact pagination.
 - **Detail view** — official artwork, English description, levels / attributes / types / fields, and every signature skill with its translation.
-- **🌟 Digivolution Tree (the differential)** — an interactive `prior → current → next` evolution graph rendered with CSS nodes and SVG-style connectors. **Every node is a link** that navigates straight to that Digimon, letting you walk an entire evolution line. Long branches collapse and expand on demand.
+- **Digivolution Tree** — an interactive `prior → current → next` evolution graph rendered with CSS nodes and SVG-style connectors. **Every node is a link** that navigates straight to that Digimon, letting you walk an entire evolution line. Long branches collapse and expand on demand.
 - **Compare mode** — pick any two Digimon (via an in-app search picker) and see them **side by side** in a stat table that highlights the differences. Selections persist across reloads.
 - **Favorites** — heart any Digimon to pin it; the collection is saved to **localStorage** and surfaced on a dedicated page with a live count badge.
 - **Light + dark themes** — auto-detected from your OS preference, toggleable, and remembered.
 - **Robust async UX** — every data path has explicit **loading skeletons, empty states, and error states with retry**.
 - **Accessible & responsive** — semantic HTML, ARIA where needed, keyboard navigation, visible focus rings, a skip link, and `prefers-reduced-motion` support.
-
----
-
-## 🖼️ Screenshots
-
-> _The images below are placeholders — drop real captures into `./docs/` with these names to populate them._
-
-| Browse (dark) | Detail + Digivolution Tree | Compare |
-| --- | --- | --- |
-| ![Browse](./docs/screenshot-1.png) | ![Detail](./docs/screenshot-2.png) | ![Compare](./docs/screenshot-3.png) |
 
 ---
 
