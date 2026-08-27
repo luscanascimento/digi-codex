@@ -9,10 +9,19 @@
     <div class="slot glass" [class.is-empty]="a().status === 'idle'">
       @switch (a().status) {
         @case ('success') {
-          <ng-container [ngTemplateOutlet]="filledTpl" [ngTemplateOutletContext]="{ state: a(), slot: 0 }" />
+          <ng-container
+            [ngTemplateOutlet]="filledTpl"
+            [ngTemplateOutletContext]="{ state: a(), slot: 0 }"
+          />
         }
-        @case ('loading') { <div class="slot__loading"><span class="ring"></span></div> }
-        @case ('error') { <div class="slot__err">Failed to load. <button type="button" (click)="clearSlot(0)">Clear</button></div> }
+        @case ('loading') {
+          <div class="slot__loading"><span class="ring"></span></div>
+        }
+        @case ('error') {
+          <div class="slot__err">
+            Failed to load. <button type="button" (click)="clearSlot(0)">Clear</button>
+          </div>
+        }
         @default {
           <button type="button" class="slot__add" (click)="openPicker(0)">
             <span class="slot__plus">+</span>
@@ -28,10 +37,19 @@
     <div class="slot glass" [class.is-empty]="b().status === 'idle'">
       @switch (b().status) {
         @case ('success') {
-          <ng-container [ngTemplateOutlet]="filledTpl" [ngTemplateOutletContext]="{ state: b(), slot: 1 }" />
+          <ng-container
+            [ngTemplateOutlet]="filledTpl"
+            [ngTemplateOutletContext]="{ state: b(), slot: 1 }"
+          />
         }
-        @case ('loading') { <div class="slot__loading"><span class="ring"></span></div> }
-        @case ('error') { <div class="slot__err">Failed to load. <button type="button" (click)="clearSlot(1)">Clear</button></div> }
+        @case ('loading') {
+          <div class="slot__loading"><span class="ring"></span></div>
+        }
+        @case ('error') {
+          <div class="slot__err">
+            Failed to load. <button type="button" (click)="clearSlot(1)">Clear</button>
+          </div>
+        }
         @default {
           <button type="button" class="slot__add" (click)="openPicker(1)">
             <span class="slot__plus">+</span>
@@ -46,7 +64,9 @@
   @if (bothReady()) {
     <section class="compare-table glass" aria-label="Stat comparison">
       <table>
-        <caption class="visually-hidden">Side-by-side comparison of the two selected Digimon</caption>
+        <caption class="visually-hidden">
+          Side-by-side comparison of the two selected Digimon
+        </caption>
         <thead>
           <tr>
             <th scope="col">{{ a().data?.name }}</th>
@@ -77,7 +97,9 @@
     <div class="picker__panel glass">
       <div class="picker__head">
         <h2>Select Digimon {{ pickTarget() === 0 ? 'A' : 'B' }}</h2>
-        <button type="button" class="picker__close" (click)="closePicker()" aria-label="Close">×</button>
+        <button type="button" class="picker__close" (click)="closePicker()" aria-label="Close">
+          ×
+        </button>
       </div>
       <input
         type="search"
@@ -112,7 +134,14 @@
 
 <ng-template #filledTpl let-state="state" let-slot="slot">
   <div class="filled">
-    <button type="button" class="filled__remove" (click)="clearSlot(slot)" aria-label="Remove from comparison">×</button>
+    <button
+      type="button"
+      class="filled__remove"
+      (click)="clearSlot(slot)"
+      aria-label="Remove from comparison"
+    >
+      ×
+    </button>
     <a [routerLink]="['/digimon', state.data.id]" class="filled__frame">
       <img [src]="imageOf(state)" [alt]="state.data.name" />
     </a>

@@ -10,6 +10,7 @@ import {
 import { RouterLink } from '@angular/router';
 import { catchError, of } from 'rxjs';
 import { DigimonApi } from '../../core/services/digimon-api';
+import { LatestOnly } from '../../core/latest-only';
 import { Digimon } from '../../core/models/digimon.model';
 import { FavoritesService } from '../../core/services/favorites';
 import { CompareService } from '../../core/services/compare';
@@ -39,7 +40,7 @@ export class Detail {
   private readonly _state = signal<DetailState>({ status: 'loading', data: null });
   readonly state = this._state.asReadonly();
   private readonly reloadTick = signal(0);
-  private inFlight = 0;
+  private readonly latest = new LatestOnly();
 
   readonly digimon = computed(() => this._state().data);
 
@@ -77,18 +78,16 @@ export class Detail {
         this._state.set({ status: 'error', data: null });
         return;
       }
-      const ticket = ++this.inFlight;
+      const isCurrent = this.latest.next();
       this.imgLoaded.set(false);
       this._state.set({ status: 'loading', data: null });
       this.api
         .getById(numeric)
         .pipe(catchError(() => of<'ERR'>('ERR')))
         .subscribe((res) => {
-          if (ticket !== this.inFlight) return;
+          if (!isCurrent()) return;
           this._state.set(
-            res === 'ERR'
-              ? { status: 'error', data: null }
-              : { status: 'success', data: res },
+            res === 'ERR' ? { status: 'error', data: null } : { status: 'success', data: res },
           );
         });
     });

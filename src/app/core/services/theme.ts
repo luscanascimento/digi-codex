@@ -38,9 +38,7 @@ export class ThemeService {
     const head = document.head;
     if (!head) return;
 
-    head
-      .querySelectorAll('meta[name="theme-color"][media]')
-      .forEach((el) => el.remove());
+    head.querySelectorAll('meta[name="theme-color"][media]').forEach((el) => el.remove());
 
     let meta = head.querySelector<HTMLMetaElement>('meta[name="theme-color"]:not([media])');
     if (!meta) {
@@ -63,8 +61,7 @@ export class ThemeService {
       /* ignore */
     }
     const prefersLight =
-      typeof window !== 'undefined' &&
-      window.matchMedia?.('(prefers-color-scheme: light)').matches;
+      typeof window !== 'undefined' && window.matchMedia?.('(prefers-color-scheme: light)').matches;
     return prefersLight ? 'light' : 'dark';
   }
 }

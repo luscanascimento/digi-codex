@@ -1,11 +1,13 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
   computed,
   effect,
   inject,
   signal,
   untracked,
+  viewChild,
 } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
@@ -13,6 +15,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { catchError, debounceTime, distinctUntilChanged, of, startWith } from 'rxjs';
 import { DigimonApi } from '../../core/services/digimon-api';
 import { PageWindowItem, pageWindow as buildPageWindow } from '../../core/pagination';
+import { LatestOnly } from '../../core/latest-only';
 import { BrowseQuery, DigimonListResponse } from '../../core/models/digimon.model';
 import { DigimonCard } from '../../shared/ui/digimon-card';
 import { CardSkeleton } from '../../shared/ui/card-skeleton';
@@ -33,6 +36,8 @@ const PAGE_SIZE = 24;
   styleUrl: './browse.scss',
   host: {
     '(document:keydown.escape)': 'closeSheet()',
+    '(document:keydown.tab)': 'trapTab($any($event))',
+    '(document:keydown.shift.tab)': 'trapTab($any($event))',
   },
 })
 export class Browse {
@@ -51,6 +56,9 @@ export class Browse {
   /** Mobile filter bottom-sheet open state. */
   private readonly _sheetOpen = signal(false);
   readonly sheetOpen = this._sheetOpen.asReadonly();
+
+  private readonly sheetTrigger = viewChild.required<ElementRef<HTMLElement>>('sheetTrigger');
+  private readonly sheetPanel = viewChild.required<ElementRef<HTMLElement>>('sheetPanel');
 
   readonly levels = toSignal(this.api.getLevels().pipe(catchError(() => of([]))), {
     initialValue: [],
@@ -97,7 +105,7 @@ export class Browse {
     () => (this.levelValue() ? 1 : 0) + (this.attributeValue() ? 1 : 0) + (this.xValue() ? 1 : 0),
   );
 
-  private inFlight = 0;
+  private readonly latest = new LatestOnly();
 
   constructor() {
     // Reset to first page whenever a filter (but not the page itself) changes.
@@ -113,13 +121,13 @@ export class Browse {
     effect(() => {
       const q = this.query();
       this.reloadTick();
-      const ticket = ++this.inFlight;
+      const isCurrent = this.latest.next();
       untracked(() => this._load.set({ status: 'loading', data: this._load().data }));
       this.api
         .browse(q, PAGE_SIZE)
         .pipe(catchError(() => of<'ERR'>('ERR')))
         .subscribe((res) => {
-          if (ticket !== this.inFlight) return; // drop stale responses
+          if (!isCurrent()) return; // drop stale responses
           this._load.set(
             res === 'ERR' ? { status: 'error', data: null } : { status: 'success', data: res },
           );
@@ -140,10 +148,32 @@ export class Browse {
 
   openSheet(): void {
     this._sheetOpen.set(true);
+    this.sheetFocusable()[0]?.focus();
   }
 
   closeSheet(): void {
+    if (!this._sheetOpen()) return;
     this._sheetOpen.set(false);
+    this.sheetTrigger().nativeElement.focus();
+  }
+
+  /** Keeps Tab cycling inside the open bottom sheet. */
+  trapTab(event: KeyboardEvent): void {
+    if (!this._sheetOpen()) return;
+    const items = this.sheetFocusable();
+    if (items.length === 0) return;
+    const edge = event.shiftKey ? items[0] : items[items.length - 1];
+    const active = document.activeElement;
+    if (active !== edge && this.sheetPanel().nativeElement.contains(active)) return;
+    event.preventDefault();
+    (event.shiftKey ? items[items.length - 1] : items[0]).focus();
+  }
+
+  private sheetFocusable(): HTMLElement[] {
+    const nodes = this.sheetPanel().nativeElement.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+    );
+    return Array.from(nodes).filter((el) => !el.hasAttribute('disabled'));
   }
 
   goToPage(p: number): void {

@@ -82,7 +82,9 @@
   color: var(--text-0);
   font-family: var(--font-body);
   font-size: var(--fs-md);
-  transition: border-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+  transition:
+    border-color var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease);
 }
 .filters__input::placeholder {
   color: var(--text-2);
@@ -162,14 +164,18 @@
   display: inline-flex;
   align-items: center;
   padding: 2px;
-  transition: background var(--dur) var(--ease), border-color var(--dur) var(--ease);
+  transition:
+    background var(--dur) var(--ease),
+    border-color var(--dur) var(--ease);
 }
 .toggle__thumb {
   width: 18px;
   height: 18px;
   border-radius: 50%;
   background: var(--text-2);
-  transition: transform var(--dur) var(--ease), background var(--dur) var(--ease);
+  transition:
+    transform var(--dur) var(--ease),
+    background var(--dur) var(--ease);
 }
 .toggle__input:checked + .toggle__track {
   background: color-mix(in srgb, var(--accent) 30%, transparent);
@@ -195,7 +201,9 @@
   background: transparent;
   color: var(--text-1);
   font-size: var(--fs-sm);
-  transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease);
+  transition:
+    color var(--dur) var(--ease),
+    border-color var(--dur) var(--ease);
 }
 .filters__clear:hover {
   color: var(--danger);
@@ -234,7 +242,11 @@
   color: var(--text-1);
   font-family: var(--font-mono);
   font-size: var(--fs-sm);
-  transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease), background var(--dur) var(--ease), transform var(--dur) var(--ease);
+  transition:
+    color var(--dur) var(--ease),
+    border-color var(--dur) var(--ease),
+    background var(--dur) var(--ease),
+    transform var(--dur) var(--ease);
 }
 .pager__btn:hover:not(:disabled) {
   color: var(--text-0);

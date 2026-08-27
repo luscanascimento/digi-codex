@@ -27,7 +27,9 @@
   background: var(--surface);
   color: var(--text-1);
   font-size: var(--fs-sm);
-  transition: color var(--dur) var(--ease), border-color var(--dur) var(--ease);
+  transition:
+    color var(--dur) var(--ease),
+    border-color var(--dur) var(--ease);
 }
 .head__clear:hover {
   color: var(--danger);
@@ -74,7 +76,9 @@
   background: linear-gradient(100deg, var(--accent), var(--accent-2));
   color: var(--bg-0);
   font-weight: 700;
-  transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+  transition:
+    transform var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease);
 }
 .empty__cta:hover {
   transform: translateY(-2px);

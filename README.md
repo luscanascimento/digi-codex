@@ -57,7 +57,15 @@ npm test
 ```
 
 Vitest + jsdom, run through the Angular CLI. The suite covers the pagination window helper, the
-browse view's stale-response guard, and the detail cache in `DigimonApi`.
+stale-response guards on the browse grid and the compare search picker, the filter sheet's ARIA and
+focus behaviour, and the detail cache in `DigimonApi`.
+
+### Formatting
+
+```bash
+npm run format        # write
+npm run format:check  # verify (also runs in CI)
+```
 
 ### Production build
 
@@ -78,7 +86,8 @@ src/
 │  ├─ core/                     # app-wide singletons — no UI
 │  │  ├─ models/                # typed API/domain interfaces
 │  │  ├─ services/              # DigimonApi, Theme, Favorites, Compare
-│  │  └─ pagination.ts          # pure pagination-window helper
+│  │  ├─ pagination.ts          # pure pagination-window helper
+│  │  └─ latest-only.ts         # in-flight ticket guard against out-of-order responses
 │  ├─ shared/                   # reusable, presentational building blocks
 │  │  ├─ pipes/                 # evolution-id pipe
 │  │  └─ ui/                    # DigimonCard, CardSkeleton, StatusPanel
@@ -127,8 +136,10 @@ first-class experience — not just a shrunk-down desktop site.
   (Browse · Compare · Favorites · Theme) with active indicators and live count badges; the original
   header is preserved on desktop.
 - **Bottom-sheet filters.** On phones the level / attribute / X-Antibody filters open in an accessible,
-  swipe-friendly **bottom sheet** (dialog role, Escape-to-close, dimmed backdrop) with a badge showing
-  the active-filter count.
+  swipe-friendly **bottom sheet** with a badge showing the active-filter count. While open it is a real
+  modal dialog: `role="dialog"` / `aria-modal` (applied only on mobile, where the same element is a
+  sheet rather than the desktop inline filter bar), a focus trap, focus returned to the trigger on
+  close, Escape-to-close, and a dimmed backdrop.
 - **Touch-ready & safe.** Usable from **320 px** up with no horizontal overflow, **≥ 44 × 44 px** tap
   targets, momentum scrolling, tap-feedback active states, no accidental double-tap zoom on controls,
   and `env(safe-area-inset-*)` padding so nothing hides behind notches or the home indicator.

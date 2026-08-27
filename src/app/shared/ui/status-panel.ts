@@ -10,12 +10,26 @@ type StatusKind = 'empty' | 'error';
     <div class="status glass" [class.status--error]="kind() === 'error'" role="status">
       <div class="status__glyph" aria-hidden="true">
         @if (kind() === 'error') {
-          <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.6">
+          <svg
+            viewBox="0 0 24 24"
+            width="34"
+            height="34"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.6"
+          >
             <path d="M12 3 2 20h20L12 3Z" stroke-linejoin="round" />
             <path d="M12 10v5M12 17.5v.5" stroke-linecap="round" />
           </svg>
         } @else {
-          <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.6">
+          <svg
+            viewBox="0 0 24 24"
+            width="34"
+            height="34"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.6"
+          >
             <circle cx="11" cy="11" r="7" />
             <path d="m20 20-3.5-3.5" stroke-linecap="round" />
           </svg>
@@ -24,9 +38,7 @@ type StatusKind = 'empty' | 'error';
       <h3 class="status__title">{{ title() }}</h3>
       <p class="status__msg">{{ message() }}</p>
       @if (kind() === 'error') {
-        <button type="button" class="status__retry" (click)="retry.emit()">
-          Retry connection
-        </button>
+        <button type="button" class="status__retry" (click)="retry.emit()">Retry connection</button>
       }
     </div>
   `,
@@ -73,7 +85,9 @@ type StatusKind = 'empty' | 'error';
         color: var(--text-0);
         font-weight: 600;
         letter-spacing: 0.02em;
-        transition: transform var(--dur) var(--ease), background var(--dur) var(--ease);
+        transition:
+          transform var(--dur) var(--ease),
+          background var(--dur) var(--ease);
       }
       .status__retry:hover {
         transform: translateY(-2px);

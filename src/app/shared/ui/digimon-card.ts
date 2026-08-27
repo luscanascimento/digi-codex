@@ -11,7 +11,11 @@ import { CompareService } from '../../core/services/compare';
   imports: [RouterLink],
   template: `
     <article class="card" [style.--i]="index()">
-      <a class="card__link" [routerLink]="['/digimon', digimon().id]" [attr.aria-label]="'View ' + digimon().name">
+      <a
+        class="card__link"
+        [routerLink]="['/digimon', digimon().id]"
+        [attr.aria-label]="'View ' + digimon().name"
+      >
         <div class="card__frame">
           @if (!loaded()) {
             <div class="card__shimmer" aria-hidden="true"></div>
@@ -40,8 +44,18 @@ import { CompareService } from '../../core/services/compare';
           [attr.aria-label]="(isFav() ? 'Remove ' : 'Add ') + digimon().name + ' to favorites'"
           (click)="favorites.toggle(digimon())"
         >
-          <svg viewBox="0 0 24 24" width="16" height="16" [attr.fill]="isFav() ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.6">
-            <path d="M12 20s-7-4.35-7-9.5A3.5 3.5 0 0 1 12 8a3.5 3.5 0 0 1 7 2.5C19 15.65 12 20 12 20Z" stroke-linejoin="round" />
+          <svg
+            viewBox="0 0 24 24"
+            width="16"
+            height="16"
+            [attr.fill]="isFav() ? 'currentColor' : 'none'"
+            stroke="currentColor"
+            stroke-width="1.6"
+          >
+            <path
+              d="M12 20s-7-4.35-7-9.5A3.5 3.5 0 0 1 12 8a3.5 3.5 0 0 1 7 2.5C19 15.65 12 20 12 20Z"
+              stroke-linejoin="round"
+            />
           </svg>
         </button>
         <button
@@ -49,10 +63,19 @@ import { CompareService } from '../../core/services/compare';
           class="chip chip--compare"
           [class.is-active]="inCompare()"
           [attr.aria-pressed]="inCompare()"
-          [attr.aria-label]="(inCompare() ? 'Remove from' : 'Add to') + ' compare: ' + digimon().name"
+          [attr.aria-label]="
+            (inCompare() ? 'Remove from' : 'Add to') + ' compare: ' + digimon().name
+          "
           (click)="compare.toggle(digimon().id)"
         >
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6">
+          <svg
+            viewBox="0 0 24 24"
+            width="16"
+            height="16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.6"
+          >
             <path d="M8 4v16M16 4v16" stroke-linecap="round" />
             <path d="M4 8h4M16 8h4M4 16h4M16 16h4" stroke-linecap="round" />
           </svg>

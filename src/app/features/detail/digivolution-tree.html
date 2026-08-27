@@ -21,9 +21,15 @@
 
     <!-- Connectors + current -->
     <div class="tree__spine" aria-hidden="true">
-      <span class="tree__connector tree__connector--in" [class.is-dead]="prior().length === 0"></span>
+      <span
+        class="tree__connector tree__connector--in"
+        [class.is-dead]="prior().length === 0"
+      ></span>
       <span class="tree__pulse"></span>
-      <span class="tree__connector tree__connector--out" [class.is-dead]="next().length === 0"></span>
+      <span
+        class="tree__connector tree__connector--out"
+        [class.is-dead]="next().length === 0"
+      ></span>
     </div>
 
     <div class="tree__branch tree__branch--current">
@@ -40,7 +46,10 @@
     </div>
 
     <div class="tree__spine tree__spine--right" aria-hidden="true">
-      <span class="tree__connector tree__connector--in" [class.is-dead]="next().length === 0"></span>
+      <span
+        class="tree__connector tree__connector--in"
+        [class.is-dead]="next().length === 0"
+      ></span>
     </div>
 
     <!-- Next evolutions column -->
@@ -75,9 +84,7 @@
     </div>
   }
 } @else {
-  <p class="tree__none tree__none--full">
-    No recorded digivolutions for this Digimon.
-  </p>
+  <p class="tree__none tree__none--full">No recorded digivolutions for this Digimon.</p>
 }
 
 <!-- Reusable evolution node template -->

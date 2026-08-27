@@ -86,12 +86,6 @@ export interface Digimon {
   readonly nextEvolutions: readonly Evolution[];
 }
 
-/** Filter option coming from the reference endpoints (/level, /attribute, /type). */
-export interface RefOption {
-  readonly id: number;
-  readonly name: string;
-}
-
 export interface RefField {
   readonly id: number;
   readonly name: string;

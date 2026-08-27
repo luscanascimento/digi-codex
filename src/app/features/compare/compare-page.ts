@@ -14,6 +14,7 @@ import { catchError, debounceTime, distinctUntilChanged, of, startWith } from 'r
 import { DigimonApi } from '../../core/services/digimon-api';
 import { Digimon, DigimonSummary } from '../../core/models/digimon.model';
 import { CompareService } from '../../core/services/compare';
+import { LatestOnly } from '../../core/latest-only';
 
 interface SlotState {
   readonly status: 'idle' | 'loading' | 'success' | 'error';
@@ -39,8 +40,9 @@ export class ComparePage {
   readonly a = this.slotA.asReadonly();
   readonly b = this.slotB.asReadonly();
 
-  private ticketA = 0;
-  private ticketB = 0;
+  private readonly latestA = new LatestOnly();
+  private readonly latestB = new LatestOnly();
+  private readonly latestSearch = new LatestOnly();
 
   /** Search box that lets the user pick a Digimon for an empty slot. */
   readonly searchCtrl = new FormControl('', { nonNullable: true });
@@ -52,22 +54,56 @@ export class ComparePage {
   readonly searching = signal(false);
   readonly pickTarget = signal<0 | 1 | null>(null);
 
-  readonly bothReady = computed(() => this.a().status === 'success' && this.b().status === 'success');
+  readonly bothReady = computed(
+    () => this.a().status === 'success' && this.b().status === 'success',
+  );
 
   /** Rows rendered in the comparison table. */
   readonly rows = computed(() => {
     const da = this.a().data;
     const db = this.b().data;
     return [
-      { label: 'Level', a: this.join(da?.levels.map((x) => x.level)), b: this.join(db?.levels.map((x) => x.level)) },
-      { label: 'Attribute', a: this.join(da?.attributes.map((x) => x.attribute)), b: this.join(db?.attributes.map((x) => x.attribute)) },
-      { label: 'Type', a: this.join(da?.types.map((x) => x.type)), b: this.join(db?.types.map((x) => x.type)) },
-      { label: 'Fields', a: this.join(da?.fields.map((x) => x.field)), b: this.join(db?.fields.map((x) => x.field)) },
+      {
+        label: 'Level',
+        a: this.join(da?.levels.map((x) => x.level)),
+        b: this.join(db?.levels.map((x) => x.level)),
+      },
+      {
+        label: 'Attribute',
+        a: this.join(da?.attributes.map((x) => x.attribute)),
+        b: this.join(db?.attributes.map((x) => x.attribute)),
+      },
+      {
+        label: 'Type',
+        a: this.join(da?.types.map((x) => x.type)),
+        b: this.join(db?.types.map((x) => x.type)),
+      },
+      {
+        label: 'Fields',
+        a: this.join(da?.fields.map((x) => x.field)),
+        b: this.join(db?.fields.map((x) => x.field)),
+      },
       { label: 'First seen', a: da?.releaseDate || '—', b: db?.releaseDate || '—' },
-      { label: 'X-Antibody', a: da ? (da.xAntibody ? 'Yes' : 'No') : '—', b: db ? (db.xAntibody ? 'Yes' : 'No') : '—' },
-      { label: 'Skills', a: da ? String(da.skills.length) : '—', b: db ? String(db.skills.length) : '—' },
-      { label: 'Evolves from', a: da ? String(da.priorEvolutions.length) : '—', b: db ? String(db.priorEvolutions.length) : '—' },
-      { label: 'Evolves to', a: da ? String(da.nextEvolutions.length) : '—', b: db ? String(db.nextEvolutions.length) : '—' },
+      {
+        label: 'X-Antibody',
+        a: da ? (da.xAntibody ? 'Yes' : 'No') : '—',
+        b: db ? (db.xAntibody ? 'Yes' : 'No') : '—',
+      },
+      {
+        label: 'Skills',
+        a: da ? String(da.skills.length) : '—',
+        b: db ? String(db.skills.length) : '—',
+      },
+      {
+        label: 'Evolves from',
+        a: da ? String(da.priorEvolutions.length) : '—',
+        b: db ? String(db.priorEvolutions.length) : '—',
+      },
+      {
+        label: 'Evolves to',
+        a: da ? String(da.nextEvolutions.length) : '—',
+        b: db ? String(db.nextEvolutions.length) : '—',
+      },
     ];
   });
 
@@ -83,15 +119,18 @@ export class ComparePage {
     effect(() => {
       const term = this.searchTerm().trim();
       if (this.pickTarget() === null || term.length < 2) {
+        this.latestSearch.next(); // invalidate anything still in flight
         this.searchResults.set([]);
         this.searching.set(false);
         return;
       }
       this.searching.set(true);
+      const isCurrent = this.latestSearch.next();
       this.api
         .browse({ name: term, level: '', attribute: '', xAntibody: false, page: 0 }, 8)
         .pipe(catchError(() => of(null)))
         .subscribe((res) => {
+          if (!isCurrent()) return; // drop stale responses
           this.searching.set(false);
           this.searchResults.set(res ? res.content : []);
         });
@@ -105,15 +144,16 @@ export class ComparePage {
       return;
     }
     if (target().data?.id === id && target().status === 'success') return;
-    const ticket = index === 0 ? ++this.ticketA : ++this.ticketB;
+    const isCurrent = (index === 0 ? this.latestA : this.latestB).next();
     target.set({ status: 'loading', data: null });
     this.api
       .getById(id)
       .pipe(catchError(() => of<'ERR'>('ERR')))
       .subscribe((res) => {
-        const current = index === 0 ? this.ticketA : this.ticketB;
-        if (ticket !== current) return;
-        target.set(res === 'ERR' ? { status: 'error', data: null } : { status: 'success', data: res });
+        if (!isCurrent()) return;
+        target.set(
+          res === 'ERR' ? { status: 'error', data: null } : { status: 'success', data: res },
+        );
       });
   }
 

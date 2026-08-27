@@ -106,3 +106,67 @@ describe('Browse stale-response guard', () => {
     expect(browse.items()).toEqual([]);
   });
 });
+
+describe('Browse filter bottom sheet', () => {
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [Browse],
+      providers: [provideRouter([]), { provide: DigimonApi, useValue: new FakeApi() }],
+    }).compileComponents();
+  });
+
+  function focusableInSheet(panel: HTMLElement): HTMLElement[] {
+    return Array.from(panel.querySelectorAll<HTMLElement>('button, input, select'));
+  }
+
+  it('exposes dialog semantics only while the sheet is open', async () => {
+    const fixture = TestBed.createComponent(Browse);
+    await fixture.whenStable();
+    const panel: HTMLElement = fixture.nativeElement.querySelector('.filters__group');
+
+    // On desktop this element is an inline filter bar, not a dialog.
+    expect(panel.getAttribute('role')).toBeNull();
+    expect(panel.getAttribute('aria-modal')).toBeNull();
+
+    fixture.componentInstance.openSheet();
+    await fixture.whenStable();
+    expect(panel.getAttribute('role')).toBe('dialog');
+    expect(panel.getAttribute('aria-modal')).toBe('true');
+  });
+
+  it('moves focus into the sheet on open and back to the trigger on close', async () => {
+    const fixture = TestBed.createComponent(Browse);
+    await fixture.whenStable();
+    const trigger: HTMLElement = fixture.nativeElement.querySelector('.filters__trigger');
+    const panel: HTMLElement = fixture.nativeElement.querySelector('.filters__group');
+
+    trigger.focus();
+    fixture.componentInstance.openSheet();
+    await fixture.whenStable();
+    expect(panel.contains(document.activeElement)).toBe(true);
+
+    fixture.componentInstance.closeSheet();
+    await fixture.whenStable();
+    expect(document.activeElement).toBe(trigger);
+  });
+
+  it('wraps Tab from the last focusable back to the first', async () => {
+    const fixture = TestBed.createComponent(Browse);
+    await fixture.whenStable();
+    const panel: HTMLElement = fixture.nativeElement.querySelector('.filters__group');
+
+    fixture.componentInstance.openSheet();
+    await fixture.whenStable();
+
+    const items = focusableInSheet(panel);
+    expect(items.length).toBeGreaterThan(1);
+    items[items.length - 1].focus();
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Tab', cancelable: true }));
+    expect(document.activeElement).toBe(items[0]);
+
+    document.dispatchEvent(
+      new KeyboardEvent('keydown', { key: 'Tab', shiftKey: true, cancelable: true }),
+    );
+    expect(document.activeElement).toBe(items[items.length - 1]);
+  });
+});

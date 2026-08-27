@@ -1,6 +1,14 @@
 <div class="container">
   <a routerLink="/" class="back">
-    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+    <svg
+      viewBox="0 0 24 24"
+      width="16"
+      height="16"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      aria-hidden="true"
+    >
       <path d="M14 6l-6 6 6 6" stroke-linecap="round" stroke-linejoin="round" />
     </svg>
     Back to index
@@ -52,8 +60,18 @@
                 [attr.aria-pressed]="isFav()"
                 (click)="toggleFavorite()"
               >
-                <svg viewBox="0 0 24 24" width="17" height="17" [attr.fill]="isFav() ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="1.7">
-                  <path d="M12 20s-7-4.35-7-9.5A3.5 3.5 0 0 1 12 8a3.5 3.5 0 0 1 7 2.5C19 15.65 12 20 12 20Z" stroke-linejoin="round" />
+                <svg
+                  viewBox="0 0 24 24"
+                  width="17"
+                  height="17"
+                  [attr.fill]="isFav() ? 'currentColor' : 'none'"
+                  stroke="currentColor"
+                  stroke-width="1.7"
+                >
+                  <path
+                    d="M12 20s-7-4.35-7-9.5A3.5 3.5 0 0 1 12 8a3.5 3.5 0 0 1 7 2.5C19 15.65 12 20 12 20Z"
+                    stroke-linejoin="round"
+                  />
                 </svg>
                 {{ isFav() ? 'Favorited' : 'Favorite' }}
               </button>
@@ -64,7 +82,14 @@
                 [attr.aria-pressed]="inCompare()"
                 (click)="toggleCompare()"
               >
-                <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.7">
+                <svg
+                  viewBox="0 0 24 24"
+                  width="17"
+                  height="17"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.7"
+                >
                   <path d="M8 4v16M16 4v16" stroke-linecap="round" />
                 </svg>
                 {{ inCompare() ? 'In compare' : 'Compare' }}
