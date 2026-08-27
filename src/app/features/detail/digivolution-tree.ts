@@ -2,7 +2,6 @@ import { NgTemplateOutlet } from '@angular/common';
 import { ChangeDetectionStrategy, Component, computed, input, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Digimon, Evolution } from '../../core/models/digimon.model';
-import { EvolutionIdPipe } from '../../shared/pipes/evolution-id.pipe';
 
 interface TreeNode {
   readonly id: number | null;
@@ -12,10 +11,8 @@ interface TreeNode {
 }
 
 /**
- * Digivolution Tree.
- * Renders prior -> current -> next evolution forms as an interactive,
- * CSS-node graph with SVG connectors. Every node is a link that navigates
- * to that Digimon's detail page.
+ * Renders prior -> current -> next evolution forms as a CSS-only node graph.
+ * Every node with a known id links to that Digimon's detail page.
  */
 @Component({
   selector: 'app-digivolution-tree',
@@ -27,10 +24,10 @@ interface TreeNode {
 export class DigivolutionTree {
   readonly digimon = input.required<Digimon>();
 
-  private readonly evoId = new EvolutionIdPipe();
-
+  // The response is only typed at compile time; a missing id falls back to a
+  // static node instead of routing to /digimon/undefined.
   private toNode = (e: Evolution): TreeNode => ({
-    id: this.evoId.transform(e.url),
+    id: e.id ?? null,
     name: e.digimon,
     image: e.image,
     condition: e.condition,
