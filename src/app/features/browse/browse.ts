@@ -36,8 +36,8 @@ const PAGE_SIZE = 24;
   styleUrl: './browse.scss',
   host: {
     '(document:keydown.escape)': 'closeSheet()',
-    '(document:keydown.tab)': 'trapTab($any($event))',
-    '(document:keydown.shift.tab)': 'trapTab($any($event))',
+    '(document:keydown.tab)': 'trapTab($event)',
+    '(document:keydown.shift.tab)': 'trapTab($event)',
   },
 })
 export class Browse {
@@ -158,15 +158,16 @@ export class Browse {
   }
 
   /** Keeps Tab cycling inside the open bottom sheet. */
-  trapTab(event: KeyboardEvent): void {
+  trapTab(event: Event): void {
     if (!this._sheetOpen()) return;
     const items = this.sheetFocusable();
     if (items.length === 0) return;
-    const edge = event.shiftKey ? items[0] : items[items.length - 1];
+    const back = (event as KeyboardEvent).shiftKey;
+    const edge = back ? items[0] : items[items.length - 1];
     const active = document.activeElement;
     if (active !== edge && this.sheetPanel().nativeElement.contains(active)) return;
     event.preventDefault();
-    (event.shiftKey ? items[items.length - 1] : items[0]).focus();
+    (back ? items[items.length - 1] : items[0]).focus();
   }
 
   private sheetFocusable(): HTMLElement[] {
