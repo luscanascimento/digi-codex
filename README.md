@@ -19,7 +19,7 @@ grid mesh backdrop, and tasteful micro-interactions that stay readable in both l
 
 - **Browse & search** — debounced name search plus **live filters** for level, attribute, and X-Antibody variants, over a responsive, skeleton-loaded artwork grid with compact pagination.
 - **Detail view** — official artwork, English description, levels / attributes / types / fields, and every signature skill with its translation.
-- **Digivolution Tree** — an interactive `prior → current → next` evolution graph rendered with CSS nodes and SVG-style connectors. **Every node is a link** that navigates straight to that Digimon, letting you walk an entire evolution line. Long branches collapse and expand on demand.
+- **Digivolution Tree** — an interactive `prior → current → next` evolution graph rendered entirely in CSS (no canvas, no SVG). **Every node is a link** that navigates straight to that Digimon, letting you walk an entire evolution line. Long branches collapse and expand on demand.
 - **Compare mode** — pick any two Digimon (via an in-app search picker) and see them **side by side** in a stat table that highlights the differences. Selections persist across reloads.
 - **Favorites** — heart any Digimon to pin it; the collection is saved to **localStorage** and surfaced on a dedicated page with a live count badge.
 - **Light + dark themes** — auto-detected from your OS preference, toggleable, and remembered.
@@ -58,7 +58,8 @@ npm test
 
 Vitest + jsdom, run through the Angular CLI. The suite covers the pagination window helper, the
 stale-response guards on the browse grid and the compare search picker, the filter sheet's ARIA and
-focus behaviour, and the detail cache in `DigimonApi`.
+focus behaviour, the digivolution tree's node mapping, and the detail cache in `DigimonApi`
+(including the fact that a failed request is not cached).
 
 ### Formatting
 
@@ -88,9 +89,7 @@ src/
 │  │  ├─ services/              # DigimonApi, Theme, Favorites, Compare
 │  │  ├─ pagination.ts          # pure pagination-window helper
 │  │  └─ latest-only.ts         # in-flight ticket guard against out-of-order responses
-│  ├─ shared/                   # reusable, presentational building blocks
-│  │  ├─ pipes/                 # evolution-id pipe
-│  │  └─ ui/                    # DigimonCard, CardSkeleton, StatusPanel
+│  ├─ shared/ui/                # presentational blocks — DigimonCard, CardSkeleton, StatusPanel
 │  ├─ features/                 # lazy-loaded route features
 │  │  ├─ browse/                # search + filters + paginated grid
 │  │  ├─ detail/                # detail view + DigivolutionTree
@@ -131,12 +130,14 @@ first-class experience — not just a shrunk-down desktop site.
   app installable on iOS and Android. Once installed it launches **standalone** (no browser chrome),
   with a themed splash screen and app icon set (72–512 px, incl. maskable).
 - **Offline app shell.** The service worker prefetches the app shell (HTML/CSS/JS) and lazily caches
-  images and fonts, so previously visited views keep working without a connection.
+  same-origin assets, so the app still boots without a connection. Digimon data and artwork come from
+  third-party origins (`digi-api.com`, Google Fonts) and are deliberately **not** cached by
+  `ngsw-config.json` — content itself still needs the network.
 - **Mobile navigation.** On small screens the desktop top-nav collapses into a **bottom tab bar**
   (Browse · Compare · Favorites · Theme) with active indicators and live count badges; the original
   header is preserved on desktop.
-- **Bottom-sheet filters.** On phones the level / attribute / X-Antibody filters open in an accessible,
-  swipe-friendly **bottom sheet** with a badge showing the active-filter count. While open it is a real
+- **Bottom-sheet filters.** On phones the level / attribute / X-Antibody filters open in an accessible
+  **bottom sheet** with a badge showing the active-filter count. While open it is a real
   modal dialog: `role="dialog"` / `aria-modal` (applied only on mobile, where the same element is a
   sheet rather than the desktop inline filter bar), a focus trap, focus returned to the trigger on
   close, Escape-to-close, and a dimmed backdrop.
